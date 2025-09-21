@@ -1,27 +1,27 @@
-import { useEffect, useState } from "react";
-import { faker } from "@faker-js/faker";
+// Import `useMutation` and `api` from Convex.
+import { useQuery, useMutation } from 'convex/react';
+import { api } from '../convex/_generated/api';
+import { useEffect, useState } from 'react';
+import { faker } from '@faker-js/faker';
 
 // For demo purposes. In a real app, you'd have real user data.
 const NAME = getOrSetFakeName();
 
 export default function App() {
-  const messages = [
-    { _id: "1", user: "Alice", body: "Good morning!" },
-    { _id: "2", user: NAME, body: "Beautiful sunrise today" },
-  ];
-  // TODO: Add mutation hook here.
+  const messages = useQuery(api.chat.getMessages);
+  const sendMessage = useMutation(api.chat.sendMessage);
 
-  const [newMessageText, setNewMessageText] = useState("");
+  const [newMessageText, setNewMessageText] = useState('');
 
   useEffect(() => {
     // Make sure scrollTo works on button click in Chrome
     setTimeout(() => {
-      window.scrollTo({ top: document.body.scrollHeight, behavior: "smooth" });
+      window.scrollTo({ top: document.body.scrollHeight, behavior: 'smooth' });
     }, 0);
   }, [messages]);
 
   return (
-    <main className="chat">
+    <main className='chat'>
       <header>
         <h1>Convex Chat</h1>
         <p>
@@ -31,7 +31,7 @@ export default function App() {
       {messages?.map((message) => (
         <article
           key={message._id}
-          className={message.user === NAME ? "message-mine" : ""}
+          className={message.user === NAME ? 'message-mine' : ''}
         >
           <div>{message.user}</div>
 
@@ -41,8 +41,8 @@ export default function App() {
       <form
         onSubmit={async (e) => {
           e.preventDefault();
-          alert("Mutation not implemented yet");
-          setNewMessageText("");
+          await sendMessage({ user: NAME, body: newMessageText });
+          setNewMessageText('');
         }}
       >
         <input
@@ -51,10 +51,10 @@ export default function App() {
             const text = e.target.value;
             setNewMessageText(text);
           }}
-          placeholder="Write a message…"
+          placeholder='Write a message…'
           autoFocus
         />
-        <button type="submit" disabled={!newMessageText}>
+        <button type='submit' disabled={!newMessageText}>
           Send
         </button>
       </form>
@@ -63,7 +63,7 @@ export default function App() {
 }
 
 function getOrSetFakeName() {
-  const NAME_KEY = "tutorial_name";
+  const NAME_KEY = 'tutorial_name';
   const name = sessionStorage.getItem(NAME_KEY);
   if (!name) {
     const newName = faker.person.firstName();
